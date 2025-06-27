@@ -23,13 +23,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviews    Review[]
-  Enrollment Enrollment[]
+  coursesCreated Course[]     @relation("MentorCourses")
+  reviews        Review[]
+  Enrollment     Enrollment[]
 }
 
 enum Role {
   ADMIN
-  INSTRUCTOR
+  MENTOR
   STUDENT
 }
 
@@ -48,10 +49,11 @@ model Course {
   title       String   @db.VarChar(255)
   description String   @db.Text
   thumbnail   String?  @db.Text
-  mentor      String   @db.VarChar(255)
+  mentorId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  mentor   User     @relation("MentorCourses", fields: [mentorId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
 
   Review     Review[]
