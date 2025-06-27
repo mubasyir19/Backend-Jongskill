@@ -26,6 +26,7 @@ model User {
   coursesCreated Course[]     @relation("MentorCourses")
   reviews        Review[]
   Enrollment     Enrollment[]
+  certificates Certificate[]
 }
 
 enum Role {
@@ -59,6 +60,7 @@ model Course {
   Review     Review[]
   Enrollment Enrollment[]
   Lesson     Lesson[]
+  certificates Certificate[]
 }
 
 model Lesson {
@@ -96,4 +98,16 @@ model Enrollment {
 
   user   User   @relation(fields: [userId], references: [id])
   course Course @relation(fields: [courseId], references: [id])
+}
+
+model Certificate {
+  id String @id @default(uuid())
+  userId String
+  courseId String
+  issuedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  courser Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
 }
