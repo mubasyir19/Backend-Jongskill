@@ -23,10 +23,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  coursesCreated Course[]     @relation("MentorCourses")
+  coursesCreated Course[]      @relation("MentorCourses")
   reviews        Review[]
   Enrollment     Enrollment[]
-  certificates Certificate[]
+  certificates   Certificate[]
 }
 
 enum Role {
@@ -57,9 +57,9 @@ model Course {
   mentor   User     @relation("MentorCourses", fields: [mentorId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
 
-  Review     Review[]
-  Enrollment Enrollment[]
-  Lesson     Lesson[]
+  Review       Review[]
+  Enrollment   Enrollment[]
+  Lesson       Lesson[]
   certificates Certificate[]
 }
 
@@ -101,12 +101,12 @@ model Enrollment {
 }
 
 model Certificate {
-  id String @id @default(uuid())
-  userId String
+  id       String   @id @default(uuid())
+  userId   String
   courseId String
   issuedAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
   courser Course @relation(fields: [courseId], references: [id])
 
   @@unique([userId, courseId])
