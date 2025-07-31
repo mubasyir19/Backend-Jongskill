@@ -1,12 +1,12 @@
 // src/middlewares/validateRequest.ts
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
+import { ZodError, ZodType } from 'zod';
 import { ResponseUtil } from '../utils/response';
 
 type ZodSchemaGroup = {
-  body?: AnyZodObject;
-  query?: AnyZodObject;
-  params?: AnyZodObject;
+  body?: ZodType<any>;
+  query?: ZodType<any>;
+  params?: ZodType<any>;
 };
 
 export const validateRequest = (schemas: ZodSchemaGroup) => {
@@ -15,7 +15,7 @@ export const validateRequest = (schemas: ZodSchemaGroup) => {
       if (schemas.body) {
         const result = schemas.body.safeParse(req.body);
         if (!result.success) {
-          res.status(400).json(ResponseUtil.error('Invalid request body', result.error.errors));
+          res.status(400).json(ResponseUtil.error('Invalid request body', result.error));
           return;
         }
         req.body = result.data;
@@ -24,7 +24,7 @@ export const validateRequest = (schemas: ZodSchemaGroup) => {
       if (schemas.query) {
         const result = schemas.query.safeParse(req.query);
         if (!result.success) {
-          res.status(400).json(ResponseUtil.error('Invalid query params', result.error.errors));
+          res.status(400).json(ResponseUtil.error('Invalid query params', result.error));
           return;
         }
         req.query = result.data;
@@ -33,7 +33,7 @@ export const validateRequest = (schemas: ZodSchemaGroup) => {
       if (schemas.params) {
         const result = schemas.params.safeParse(req.params);
         if (!result.success) {
-          res.status(400).json(ResponseUtil.error('Invalid route params', result.error.errors));
+          res.status(400).json(ResponseUtil.error('Invalid route params', result.error));
           return;
         }
         req.params = result.data;
@@ -41,8 +41,9 @@ export const validateRequest = (schemas: ZodSchemaGroup) => {
 
       next();
     } catch (err) {
+      console.log('ada error middleware zod', err);
       if (err instanceof ZodError) {
-        res.status(400).json(ResponseUtil.error('Validation error', err.errors));
+        res.status(400).json(ResponseUtil.error('Validation error', err));
         return;
       }
       next(err);

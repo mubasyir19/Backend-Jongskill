@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
+import { PrismaClient } from '../../prisma/generated/prisma';
 
 const prisma = new PrismaClient();
 
@@ -42,7 +42,7 @@ class AuthService {
       throw new Error('Account user not found');
     }
 
-    const checkPassword = bcrypt.compare(data.password, existingUser.password);
+    const checkPassword = await bcrypt.compare(data.password, existingUser.password);
     if (!checkPassword) {
       throw new Error('Invalid Password');
     }
