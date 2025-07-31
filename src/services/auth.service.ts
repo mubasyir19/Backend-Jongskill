@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcyrpt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 
@@ -9,6 +9,13 @@ interface LoginData {
   email: string;
   password: string;
 }
+
+type RegisterData = {
+  fullname: string;
+  email: string;
+  password: string;
+  role: 'STUDENT' | 'MENTOR' | 'ADMIN';
+};
 
 class AuthService {
   async findUserByEmail(email: string) {
@@ -35,7 +42,7 @@ class AuthService {
       throw new Error('Account user not found');
     }
 
-    const checkPassword = bcyrpt.compare(data.password, existingUser.password);
+    const checkPassword = bcrypt.compare(data.password, existingUser.password);
     if (!checkPassword) {
       throw new Error('Invalid Password');
     }
@@ -50,6 +57,28 @@ class AuthService {
     const jwtToken = jwt.sign(user, env.JWT_SECRET as string);
 
     return { user, jwtToken };
+  }
+
+  async register(data: RegisterData) {
+    const existingUser = await this.findUserByEmail(data.email);
+
+    if (existingUser) {
+      throw new Error('An Account already exist');
+    }
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(data.password, salt);
+
+    const newUser = await prisma.user.create({
+      data: {
+        fullname: data.fullname,
+        email: data.email,
+        password: hashedPassword,
+        role: data.role,
+      },
+    });
+
+    return { newUser };
   }
 }
 
